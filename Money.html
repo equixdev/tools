@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title> </title>
+  </head>
+  <body>
+    <section class="categories"></section>
+    <div>
+      <input type="date" />
+      <main>
+        <input
+          inputmode="none"
+          type="text"
+          tabindex="-1"
+          autofocus="autofocus"
+        />
+        <span></span>
+      </main>
+    </div>
+    <section class="actions"></section>
+  </body>
+</html>
+<script>
+  // EDIT
+  const CATEGORIES = [
+    "Groceries",
+    "Public transport",
+    "Health",
+    "People",
+    "Goals, experience",
+    "Things",
+    "Rent",
+    "Subscriptions",
+    "Fastfood, drinks",
+    "Taxi",
+  ];
+  const APPS_SCRIPT_DEPLOY_LINK =
+    "https://script.google.com/macros/s/AKfycbwoTUfoD9r_bLTXSinEIGrRse31WzSR2HWN-6n59dRhLwifsQsf58n0DTd1GYHA4h-Iwg/exec";
+
+  // DONT EDIT
+  let date = new Date().toLocaleDateString("fr-ca");
+  let sum = 0;
+
+  const dateInput = document.querySelector("input[type=date]");
+  dateInput.value = date;
+  dateInput.max = date;
+  dateInput.onchange = (e) => (date = e.target.value);
+  document
+    .querySelector("input[type=date]")
+    .addEventListener("click", function () {
+      this.showPicker();
+    });
+
+  const textInput = document.querySelector("input[type=text]");
+  const resultContainer = document.querySelector("span");
+  const updateResult = () => {
+    sum = Math.round(eval(textInput.value));
+    resultContainer.innerText = `=${sum}`;
+
+    if (sum) {
+      categoriesContainer.style.visibility = "visible";
+    } else {
+      categoriesContainer.style.visibility = "hidden";
+    }
+  };
+  textInput.onkeypress = () => updateResult();
+
+  const categoriesContainer = document.querySelector(".categories");
+  CATEGORIES.map((category, index) => {
+    const categoryButton = document.createElement("button");
+    categoryButton.innerText = category;
+    categoryButton.onclick = async () => {
+      document.body.style.opacity = 0.5;
+      sum = 0;
+      fetch(
+        `${APPS_SCRIPT_DEPLOY_LINK}?date=${date}&category=${
+          index + 1
+        }&sum=${sum}`
+      ).then((res) => {
+        if (res.ok) {
+          document.body.style.opacity = 1;
+        } else alert("Error");
+      });
+    };
+    categoriesContainer.append(categoryButton);
+  });
+
+  const actions = [
+    "+",
+    "1",
+    "2",
+    "3",
+    "-",
+    "4",
+    "5",
+    "6",
+    "*",
+    "7",
+    "8",
+    "9",
+    "/",
+    "0",
+  ];
+  const actionsContainer = document.querySelector(".actions");
+  actions.map((action) => {
+    const actionButton = document.createElement("button");
+    actionButton.innerText = action;
+    actionButton.onclick = (e) => {
+      const inputValue = textInput.value;
+      if (inputValue === "0") {
+        textInput.value = action;
+      } else {
+        textInput.value = inputValue + action;
+        updateResult();
+      }
+    };
+    actionsContainer.append(actionButton);
+  });
+  const eraseButton = document.createElement("button");
+  eraseButton.innerHTML = `<svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="18"
+      height="18"
+      fill="currentColor"
+      viewBox="0 0 16 16"
+    >
+      <path d="M5.83 5.146a.5.5 0 0 0 0 .708L7.975 8l-2.147 2.146a.5.5 0 0 0 .707.708l2.147-2.147 2.146 2.147a.5.5 0 0 0 .707-.708L9.39 8l2.146-2.146a.5.5 0 0 0-.707-.708L8.683 7.293 6.536 5.146a.5.5 0 0 0-.707 0z" />
+      <path d="M13.683 1a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-7.08a2 2 0 0 1-1.519-.698L.241 8.65a1 1 0 0 1 0-1.302L5.084 1.7A2 2 0 0 1 6.603 1zm-7.08 1a1 1 0 0 0-.76.35L1 8l4.844 5.65a1 1 0 0 0 .759.35h7.08a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" />
+    </svg>`;
+  eraseButton.onclick = () => {
+    if (textInput.value.length === 1) {
+      textInput.value = 0;
+    } else
+      textInput.value = textInput.value.substr(0, textInput.value.length - 1);
+    updateResult();
+  };
+  actionsContainer.append(eraseButton);
+</script>
+<style>
+  * {
+    box-sizing: border-box;
+    font-family: sans-serif;
+    background: inherit;
+    color: inherit;
+    font-size: inherit;
+    margin: 0;
+    padding: 0;
+    outline: none;
+    border: none;
+    color-scheme: dark;
+  }
+
+  body {
+    background: black;
+    color: white;
+    padding: 8px;
+    display: grid;
+    grid-template-columns: 1;
+    grid-template-rows: repeat(1fr, 2);
+    gap: 8px;
+    font-size: 18px;
+  }
+
+  section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .categories {
+    visibility: hidden;
+  }
+
+  .categories button {
+    width: calc(50% - 4px);
+  }
+
+  .actions button {
+    width: calc(25% - 6px);
+  }
+
+  .actions button:nth-child(14) {
+    margin-left: auto;
+  }
+
+  div {
+    display: flex;
+    gap: 8px;
+  }
+
+  button,
+  main,
+  input[type="date"] {
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 8px;
+    border: 1px solid #1b1b1b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 9vh;
+  }
+
+  button:active {
+    background: #1b1b1b;
+  }
+
+  main {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  span {
+    opacity: 50%;
+  }
+
+  input[type="date"] {
+    &::-webkit-calendar-picker-indicator {
+      display: none;
+    }
+
+    &::-moz-calendar-picker-indicator {
+      display: none;
+    }
+
+    &::-ms-calendar-picker-indicator {
+      display: none;
+    }
+  }
+
+  input[type="text"] {
+    width: 100%;
+    caret-color: transparent;
+  }
+</style>
