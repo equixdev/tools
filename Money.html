@@ -36,8 +36,8 @@
     "Fastfood, drinks",
     "Taxi",
   ];
-  const APPS_SCRIPT_DEPLOY_LINK =
-    "https://script.google.com/macros/s/AKfycbwoTUfoD9r_bLTXSinEIGrRse31WzSR2HWN-6n59dRhLwifsQsf58n0DTd1GYHA4h-Iwg/exec";
+  const SCRIPT_URL =
+    process.env.SCRIPT_URL;
 
   // DONT EDIT
   let date = new Date().toLocaleDateString("fr-ca");
@@ -75,7 +75,7 @@
       document.body.style.opacity = 0.5;
       sum = 0;
       fetch(
-        `${APPS_SCRIPT_DEPLOY_LINK}?date=${date}&category=${
+        `${SCRIPT_URL}?date=${date}&category=${
           index + 1
         }&sum=${sum}`
       ).then((res) => {

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Typewriter</title>
+    <meta
+    name="description"
+    content="Typewriter"
+  />
+  </head>
+  <body>
+    <textarea autofocus="true"></textarea>
+    <div></div>
+  </body>
+</html>
+<style>
+  :root {
+    --bg: #ddd;
+
+    --page-bg: #fff;
+
+    @media (prefers-color-scheme: dark) {
+      --bg: #000;
+
+      --page-bg: #e0c9a6;
+    }
+  }
+
+  body {
+    background: var(--bg);
+    overflow: hidden;
+    /* height: 100vh;
+    width: 100%; */
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    box-sizing: border-box;
+    font-family: monospace;
+  }
+
+  textarea {
+    position: absolute;
+    font-size: 16px;
+    line-height: 1.5;
+    caret-color: transparent;
+    padding: 2cm;
+    resize: none;
+    background: var(--page-bg);
+    left: 50%;
+
+    width: 210mm;
+    height: 297mm;
+
+    @media print {
+      position: static;
+      padding: 1cm !important;
+      overflow: hidden;
+    }
+  }
+
+  div {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    border-color: black;
+    border-width: 0 4px;
+    border-style: solid;
+
+    @media (max-width: 1000px) {
+      display: none;
+    }
+  }
+</style>
+<script>
+  const CHAR_WIDTH = 8.795,
+    CHAR_HEIGHT = 24,
+    CHARS_IN_LINE = 72;
+
+  let xOffset = 0,
+    yOffset = 0;
+
+  const bell = new Audio("bell.mp3");
+
+  window.onload = function () {
+    const textarea = document.querySelector("textarea");
+    const pointer = document.querySelector("div");
+    pointer.style.height = `${CHAR_HEIGHT}px`;
+
+    const updateOffset = () => {
+      textarea.style.left = `calc(50% - 2cm -
+    ${CHAR_WIDTH / 2}px - ${xOffset}px)`;
+      textarea.style.top = `calc(100% - 2cm +
+    ${CHAR_HEIGHT}px - ${yOffset}px)`;
+    };
+
+    updateOffset();
+
+    const keyHandler = (event) => {
+      if (Math.round(xOffset) === Math.round(CHAR_WIDTH * 62)) {
+        bell.play();
+      }
+
+      if (
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.key === "Shift"
+      )
+        return;
+
+      if (
+        (Math.round(xOffset) === Math.round(CHAR_WIDTH * CHARS_IN_LINE) &&
+          event.key !== "Enter") ||
+        (xOffset < 1 &&
+          (event.key === "Backspace" || event.key === "ArrowLeft")) ||
+        yOffset > 1000
+      ) {
+        event.preventDefault();
+      }
+
+      if (event.key === "Backspace" || event.key === "ArrowLeft") {
+        if (xOffset === 0) xOffset = textarea.getBoundingClientRect().width;
+
+        if (xOffset > 0) xOffset -= CHAR_WIDTH;
+      }
+
+      if (event.key.length === 1 || event.key === "ArrowRight") {
+        xOffset += CHAR_WIDTH;
+      }
+
+      if (event.key === "ArrowUp") yOffset -= CHAR_HEIGHT;
+
+      if (event.key === "ArrowDown") yOffset += CHAR_HEIGHT;
+
+      if (event.key === "Enter") {
+        xOffset = 0;
+        yOffset += CHAR_HEIGHT;
+      }
+
+      updateOffset();
+    };
+
+    document.addEventListener("keydown", keyHandler, false);
+
+    return () => {
+      document.removeEventListener("keydown", keyHandler, false);
+    };
+  };
+</script>
